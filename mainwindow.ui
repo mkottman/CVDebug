@@ -38,10 +38,10 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Image Processing[*]</string>
+   <string>CvDebugger</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="Obrazky.qrc">
+   <iconset>
     <normaloff>:/zakladne/Application_Icon.png</normaloff>:/zakladne/Application_Icon.png</iconset>
   </property>
   <property name="layoutDirection">
@@ -56,7 +56,7 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="left_panel_layout">
+     <layout class="QVBoxLayout" name="selector">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -94,7 +94,7 @@
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
-      <widget class="my_main_qlabel" name="lbl_Okno">
+      <widget class="ImageDisplay" name="imageDisplay">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -173,52 +173,15 @@ background-color: rgb(255, 255, 255);</string>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>852</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuNazov">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionOpen"/>
-   </widget>
-   <addaction name="menuNazov"/>
-  </widget>
-  <action name="actionOpen">
-   <property name="icon">
-    <iconset resource="Obrazky.qrc">
-     <normaloff>:/zakladne/open_icon.png</normaloff>:/zakladne/open_icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Open</string>
-   </property>
-  </action>
-  <action name="actionSave">
-   <property name="icon">
-    <iconset resource="Obrazky.qrc">
-     <normaloff>:/zakladne/save_icon.png</normaloff>:/zakladne/save_icon.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save</string>
-   </property>
-  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>my_main_qlabel</class>
+   <class>ImageDisplay</class>
    <extends>QLabel</extends>
-   <header location="global">my_main_qlabel.h</header>
+   <header>imagedisplay.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="Obrazky.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

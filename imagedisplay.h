@@ -7,10 +7,10 @@
 #include <QDebug>
 #include <opencv2/core/core.hpp>
 
-class my_main_qlabel : public QLabel{
+class ImageDisplay : public QLabel{
     Q_OBJECT
 public:
-    explicit my_main_qlabel(QWidget *parent = 0);
+    explicit ImageDisplay(QWidget *parent = 0);
 
     void mouseMoveEvent(QMouseEvent *ev);
     void wheelEvent(QWheelEvent *event);

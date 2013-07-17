@@ -9,17 +9,18 @@
 #include <zmq.hpp>
 #include <iostream>
 
-class MyThread : public QThread{
+class ReceiverThread : public QThread{
     Q_OBJECT
 
 public:
-    explicit MyThread(QObject *parent = 0);
+    explicit ReceiverThread(QObject *parent = 0);
     void run();
     void decodeData(const QByteArray &inputData);
     bool stop;
 
 signals:
-    void incoming_image(QString name, cv::Mat incoming_mat);
+    void receivedImage(const QString name, const cv::Mat& image);
+    void receivedKeypoints(const QString imageName, const std::vector<cv::KeyPoint>& points);
 
 public slots:
 

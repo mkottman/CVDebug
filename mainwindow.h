@@ -6,56 +6,76 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/features2d/features2d.hpp>
 
 #include <QtGui>
 #include <QtCore>
 #include <QMutex>
-#include "My_label.h"
-#include "mythread.h"
+#include "receiver.h"
+#include "imagelabel.h"
+#include "imagedisplay.h"
 
 using namespace std;
 
-namespace Ui {
-    class MainWindow;
+namespace Ui
+{
+class MainWindow;
 }
 
-class MainWindow : public QMainWindow{
+struct ReceivedItem {
+    enum Type {
+        TYPE_IMAGE, TYPE_KEYPOINTS
+    } type;
+    QString name;
+    cv::Mat thumbnail;
+    cv::Mat image;
+    std::vector<cv::KeyPoint> points;
+};
+
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
-    public:
-        explicit MainWindow(QWidget *parent = 0);
-        ~MainWindow();
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
     void resizeEvent(QResizeEvent *);
     void closeEvent(QCloseEvent *);
-    void display_on_label();
-    cv::Mat scale(const cv::Mat& image);
 
-    signals:
+    static cv::Mat rescale(const cv::Mat &image);
+
+signals:
     void picture_changed(QImage image, int picture_ID);
 
-    private slots:
-        void reload_picture();
-        void Mouse_position_Slot(int pos_x, int pos_y);
-        void receive_new_image(QString name, cv::Mat received_mat);
-        void on_actionOpen_triggered();
+private:
+    void displayCurrentImage();
+    void addLabelForCurrentItem();
+    ReceivedItem &insertNewReceivedItem();
+    int findImageByName(QString name);
+
+private slots:
+    void reload_picture();
+    void mouseMoved(int pos_x, int pos_y);
+    void on_actionOpen_triggered();
+
+    void receivedImage(QString name, cv::Mat image);
+    void receivedKeypoints(QString name, std::vector<cv::KeyPoint> points);
 
 private:
-        Ui::MainWindow *ui;
-        My_label *my_label;
-        QLabel *des;
-        MyThread *my_thread_1;
-        QVBoxLayout *left_panel_label_layout;
-        QMutex mutex;
+    Ui::MainWindow *ui;
+    ReceiverThread *receiverThread;
+    QVBoxLayout *selectorLayout;
+    QMutex mutex;
 
-        QList <cv::Mat> Qlist_of_pictures;
-        QList <QLabel*> Qlist_of_descriptions;
-        QList <My_label*> Qlist_of_labels;
+    QList<ReceivedItem> received_items;
+    QList<QLabel *> descriptions;
+    QList<ImageLabel *> labels;
 
-        int actual_image_ID;
-        int max_num_of_pictures;
-        int picture_counter;
-        int label_description_height;
-        int representative_label_height, representative_label_width;
+    int current_ID;
+    int max_item_count;
+    int item_counter;
+    int label_description_height;
+    int representative_label_height, representative_label_width;
 };
 
 #endif // MAINWINDOW_H
