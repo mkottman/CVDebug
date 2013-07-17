@@ -14,7 +14,13 @@ DEFINES += CVDEBUG_LIBRARY _DEBUG
 SOURCES += cvdebug.cpp
 HEADERS += cvdebug.h
 
-!win32:LIBS += -lopencv_core -lzmq
+!win32 {
+	LIBS += -lopencv_core -lzmq
+	headers.path = /usr/local/include
+	headers.files = $$HEADERS
+	target.path = /usr/local/
+	INSTALLS += target headers
+}
 
 win32:LIBPATH += C:/Work/opencv/build/x86/vc10/lib C:/work/zmq/lib
 win32:INCLUDEPATH += C:/Work/opencv/build/include C:/work/zmq/include
