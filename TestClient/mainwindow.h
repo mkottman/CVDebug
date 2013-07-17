@@ -1,11 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#define _DEBUG
+
 #include <QMainWindow>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <visual_debug.h>
+#include <cvdebug.h>
 #include <QtGui>
 #include <QtCore>
 #include <zmq.hpp>

@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       -= gui
+CONFIG   += debug
 
 TARGET = cvdebug
 TEMPLATE = lib
@@ -18,7 +19,7 @@ HEADERS += cvdebug.h
 	LIBS += -lopencv_core -lzmq
 	headers.path = /usr/local/include
 	headers.files = $$HEADERS
-	target.path = /usr/local/
+	target.path = /usr/local/lib
 	INSTALLS += target headers
 }
 

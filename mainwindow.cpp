@@ -378,19 +378,3 @@ void MainWindow::addLabelForCurrentItem()
     selectorLayout->insertWidget(0, imageLabel);
     selectorLayout->insertWidget(0, description);
 }
-
-
-void MainWindow::on_actionOpen_triggered()
-{
-    QString file_name = QFileDialog::getOpenFileName(this, tr("Open File"), "/home",
-                        tr("Image Files(*.png *.bmp *.jpg *.jpeg *.gif *.tiff *.ppm *.pgm *.pbm *.xbm *.xpm)"));
-    //QFile file(file_name);
-
-    if (file_name.size() < 1)
-        return; //if no file opened, nothing is going to be processed
-
-    cv::Mat actual_image = cv::imread(file_name.toAscii().data(),
-                                      CV_LOAD_IMAGE_UNCHANGED);
-    receivedImage(file_name, actual_image);
-}
-

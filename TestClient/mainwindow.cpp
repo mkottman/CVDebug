@@ -39,11 +39,11 @@ void MainWindow::on_btn_open_clicked(){
 }
 
 void MainWindow::on_btn_send_image_clicked(){
-    for (int i = 1;i <=1;i++){
+    for (int i = 1;i<=1;i++){
         counter++;
         QString number = QString::number(counter);
-        std::string picture_name("môj obrázok č.");
+        std::string picture_name("My Image No.");
         picture_name.append(number.toStdString());
-        send_image(original_image,picture_name);
+        cvdebug_image(original_image, picture_name);
     }
 }

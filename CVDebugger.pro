@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+CONFIG   += debug
 
 TARGET = CvDebugger
 TEMPLATE = app
@@ -20,18 +21,23 @@ HEADERS  += mainwindow.h \
     imagelabel.h \
     receiver.h
 
-unix:LIBS += -lopencv_core \
+!win32 {
+	LIBS += -L/usr/local/lib \
+		-lopencv_core \
         -lopencv_imgproc \
         -lopencv_highgui \
-        -lopenv_features2d \
+        -lopencv_features2d \
         -lzmq
+}
 
-win32:LIBPATH += C:/Work/opencv/build/x86/vc10/lib C:/Work/zmq/lib
-win32:INCLUDEPATH += C:/Work/opencv/build/include C:/Work/zmq/include
-win32:LIBS += opencv_core245.lib opencv_imgproc245.lib opencv_highgui245.lib opencv_features2d245.lib libzmq-v100-mt-3_2_3.lib
+win32 {
+	LIBPATH += C:/Work/opencv/build/x86/vc10/lib C:/Work/zmq/lib
+	INCLUDEPATH += C:/Work/opencv/build/include C:/Work/zmq/include
+	LIBS += opencv_core245.lib opencv_imgproc245.lib opencv_highgui245.lib opencv_features2d245.lib libzmq-v100-mt-3_2_3.lib
+}
 
 FORMS    += \
     mainwindow.ui
 
 RESOURCES += \
-    Obrazky.qrc
+    images.qrc
