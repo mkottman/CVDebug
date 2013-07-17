@@ -21,15 +21,17 @@ public:
     double zoom_of_picture;
     int offset_x;
     int offset_y;
+    int end_x;
+    int end_y;
 
 private:
-    
+
 signals:
     void Mouse_position(int pos_x, int pos_y);
     void zoomed();
-    
+
 public slots:
-    
+    void refreshImage();
 };
 
 #endif // MY_MAIN_QLABEL_H

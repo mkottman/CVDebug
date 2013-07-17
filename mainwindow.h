@@ -28,7 +28,8 @@ struct ReceivedItem {
     } type;
     QString name;
     cv::Mat thumbnail;
-    cv::Mat image;
+    cv::Mat displayableImage;
+    cv::Mat originalImage;
     std::vector<cv::KeyPoint> points;
 };
 

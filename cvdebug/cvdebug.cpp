@@ -1,5 +1,9 @@
-#ifndef _DEBUG
-#define _DEBUG
+#ifdef NDEBUG
+#undef NDEBUG // always build
+#endif
+
+#ifndef CVDEBUG_LIBRARY
+#define CVDEBUG_LIBRARY // always define this to export
 #endif
 
 #include "cvdebug.h"
@@ -7,7 +11,6 @@
 #include <cassert>
 #include <zmq.hpp>
 #include <iostream>
-
 
 class CvDebugState
 {
@@ -18,8 +21,8 @@ public:
         socket(new zmq::socket_t(*context, ZMQ_PUB))
     {
         try {
-            int one = 1;
-            socket->setsockopt(ZMQ_SNDHWM, &one, sizeof(one));
+            int few = 20;
+            socket->setsockopt(ZMQ_SNDHWM, &few, sizeof(few));
             socket->connect("tcp://localhost:7139");
             initialized = true;
         } catch (std::exception &ex) {

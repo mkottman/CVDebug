@@ -10,7 +10,7 @@ CONFIG   += debug
 TARGET = cvdebug
 TEMPLATE = lib
 
-DEFINES += CVDEBUG_LIBRARY _DEBUG
+DEFINES += CVDEBUG_LIBRARY
 
 SOURCES += cvdebug.cpp
 HEADERS += cvdebug.h

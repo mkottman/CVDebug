@@ -1,17 +1,17 @@
 #include "imagedisplay.h"
 
-ImageDisplay::ImageDisplay(QWidget* parent) : QLabel(parent)
+ImageDisplay::ImageDisplay(QWidget *parent) : QLabel(parent)
 {
     scaleFactor_x = 1;
     scalefactor_y = 1;
 }
 
-void ImageDisplay::mouseMoveEvent(QMouseEvent* ev)
+void ImageDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
     emit Mouse_position(ev->x(), ev->y());
 }
 
-void ImageDisplay::wheelEvent(QWheelEvent* event)
+void ImageDisplay::wheelEvent(QWheelEvent *event)
 {
     double numSteps = (event->delta() / 8) / 15.0f;
     zoom(numSteps, event->x(), event->y());
@@ -21,14 +21,14 @@ void ImageDisplay::zoom(double zoomfactor, int mouse_pos_x, int mouse_pos_y)
 {
 
     //we will not zoom out to make picture disappear, there is no point to do that
-    if (zoomfactor < 0 && zoom_of_picture <= 1) return;
+    if (zoomfactor < 0 && zoom_of_picture <= 1) { return; }
 
 
-    if (zoomfactor > 0) zoomfactor = 1.25;
-    else zoomfactor = 1 / 1.25;
+    if (zoomfactor > 0) { zoomfactor = 1.25; }
+    else { zoomfactor = 1 / 1.25; }
     zoom_of_picture *= zoomfactor;
 
-    if (zoom_of_picture < 1) zoom_of_picture = 1;
+    if (zoom_of_picture < 1) { zoom_of_picture = 1; }
 
     //mouse position depends on the displaying label size and size of the area
     // we want to display, so there scalefactor of pixmap comes together woth offset
@@ -73,17 +73,28 @@ void ImageDisplay::zoom(double zoomfactor, int mouse_pos_x, int mouse_pos_y)
     }
 
     //we need to set new scalefactor as precize as possible
-    scaleFactor_x = (double) this->parentWidget()->width() / (double)(bottom_right_corner_x - top_left_corner_x);
-    scalefactor_y = (double) this->parentWidget()->height() / (double)(bottom_right_corner_y - top_left_corner_y);
+    scaleFactor_x = (double) this->parentWidget()->width() / (double)(bottom_right_corner_x -
+                    top_left_corner_x);
+    scalefactor_y = (double) this->parentWidget()->height() / (double)(bottom_right_corner_y -
+                    top_left_corner_y);
 
     //new pixmap offset depends on the top left corner of the rectangle we are going to display
     offset_x = top_left_corner_x;
     offset_y = top_left_corner_y;
 
-    QPixmap pixmap_new = this->original_pixmap.copy(top_left_corner_x,
-                         top_left_corner_y, bottom_right_corner_x - top_left_corner_x,
-                         bottom_right_corner_y - top_left_corner_y);
+    end_x = bottom_right_corner_x;
+    end_y = bottom_right_corner_y;
 
-    this->setPixmap(pixmap_new.scaled(this->parentWidget()->width(), this->parentWidget()->height(), Qt::KeepAspectRatio));
+    refreshImage();
+}
+
+void ImageDisplay::refreshImage()
+{
+    QPixmap pixmap_new = this->original_pixmap.copy(
+                             offset_x, offset_y,
+                             end_x - offset_x, end_y - offset_y);
+    this->setPixmap(pixmap_new.scaled(this->parentWidget()->width(), this->parentWidget()->height(),
+                                      Qt::KeepAspectRatio));
     this->setGeometry(0, 0, this->pixmap()->width(), this->pixmap()->height());
+
 }

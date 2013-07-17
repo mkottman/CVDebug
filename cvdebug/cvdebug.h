@@ -7,14 +7,24 @@ enum CVDEBUG_TYPE {
     CVDEBUG_LAST
 };
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 
-#include <QtCore/qglobal.h>
+// simplified from Qt
+#if defined(_WIN32)
+#  define DECL_EXPORT __declspec(dllexport)
+#else
+#  define DECL_EXPORT
+#endif
+#if defined(_WIN32)
+#  define DECL_IMPORT __declspec(dllimport)
+#else
+#  define DECL_IMPORT
+#endif
 
 #if defined(CVDEBUG_LIBRARY)
-#  define EXPORTED Q_DECL_EXPORT
+#  define EXPORTED DECL_EXPORT
 #else
-#  define EXPORTED Q_DECL_IMPORT
+#  define EXPORTED DECL_IMPORT
 #endif
 
 #include <opencv2/core/core.hpp>
@@ -24,8 +34,10 @@ EXPORTED void cvdebug_image(const cv::Mat &image, const std::string &name);
 EXPORTED void cvdebug_keypoints(const std::vector<cv::KeyPoint> &keyPoints, const std::string &imageName);
 
 #undef EXPORTED
+#undef DECL_IMPORT
+#undef DECL_EXPORT
 
-#else // _DEBUG
+#else // ifndef NDEBUG
 
 #define cvdebug_image(...)
 #define cvdebug_keypoints(...)

@@ -78,7 +78,7 @@ void MainWindow::resizeEvent(QResizeEvent *)
     //setting size policy of whole window followed by appropriate picture repainting on the label
     ui->imageDisplay->setGeometry(0, 0, ui->groupBox->width(),
                                   ui->groupBox->height());
-    if (received_items.size() > 0) displayCurrentImage();
+    if (received_items.size() > 0) { displayCurrentImage(); }
 }
 
 void MainWindow::closeEvent(QCloseEvent *)
@@ -93,7 +93,7 @@ void MainWindow::displayCurrentImage()
 
     mutex.lock();
 
-    cv::Mat &image = received_items[current_ID].image;
+    cv::Mat &image = received_items[current_ID].displayableImage;
 
     QImage qImage = QImage((const unsigned char *)image.data,
                            image.cols, image.rows, image.step[0], QImage::Format_RGB888);
@@ -104,12 +104,19 @@ void MainWindow::displayCurrentImage()
                                     Qt::KeepAspectRatio)); //Qt::KeepAspectRatiobyexpanding
     ui->imageDisplay->setGeometry(0, 0, ui->imageDisplay->pixmap()->width(),
                                   ui->imageDisplay->pixmap()->height());
-    ui->imageDisplay->original_pixmap = QPixmap::fromImage(qImage);
-    ui->imageDisplay->scalefactor_y = ui->imageDisplay->scaleFactor_x =
-                                          (double) ui->imageDisplay->pixmap()->height() / (double) qImage.height();
-    ui->imageDisplay->zoom_of_picture = 1;
-    ui->imageDisplay->offset_x = 0;
-    ui->imageDisplay->offset_y = 0;
+
+    QPixmap newPixmap = QPixmap::fromImage(qImage);
+    if (newPixmap.size() == ui->imageDisplay->original_pixmap.size()) {
+        // image of the same size, do not reset zoom settings
+    } else {
+        ui->imageDisplay->scalefactor_y = ui->imageDisplay->scaleFactor_x =
+                                              (double) ui->imageDisplay->pixmap()->height() / (double) qImage.height();
+        ui->imageDisplay->zoom_of_picture = 1;
+        ui->imageDisplay->offset_x = 0;
+        ui->imageDisplay->offset_y = 0;
+    }
+    ui->imageDisplay->original_pixmap = newPixmap;
+    ui->imageDisplay->refreshImage();
 
     mutex.unlock();
 
@@ -120,8 +127,9 @@ cv::Mat MainWindow::rescale(const cv::Mat &image)
 {
     double min = 0, max = 1;
     cv::minMaxLoc(image, &min, &max);
-    if (max == min)
+    if (max == min) {
         max = min + 1;
+    }
     cv::Mat res;
     cv::Mat tmp = ((image - min) / (max - min)) * 255;
     tmp.convertTo(res, CV_8UC1);
@@ -132,8 +140,11 @@ cv::Mat MainWindow::rescale(const cv::Mat &image)
 void MainWindow::reload_picture()
 {
     ImageLabel *label = (ImageLabel *) sender();
-    current_ID = label->get_identity();
-    displayCurrentImage();
+    int newId = label->get_identity();
+    if (newId != current_ID) {
+        current_ID = newId;
+        displayCurrentImage();
+    }
 }
 
 void MainWindow::mouseMoved(int pos_x, int pos_y)
@@ -146,7 +157,7 @@ void MainWindow::mouseMoved(int pos_x, int pos_y)
     pos_y = (int)((pos_y / ui->imageDisplay->scalefactor_y) +
                   ui->imageDisplay->offset_y);
 
-    cv::Mat &image = received_items[current_ID].image;
+    cv::Mat &image = received_items[current_ID].displayableImage;
 
     QString values;
 
@@ -161,27 +172,28 @@ void MainWindow::mouseMoved(int pos_x, int pos_y)
             if (chans == 1) {
                 values.append(" | Value=");
             } else {
-                if (ch == 0) values.append(" | R=");
-                else if (ch == 1) values.append(" G=");
-                else if (ch == 2) values.append(" B=");
+                if (ch == 0) { values.append(" | R="); }
+                else if (ch == 1) { values.append(" G="); }
+                else if (ch == 2) { values.append(" B="); }
             }
             if (type == CV_8U)
                 values.append(QString::number(image.at<unsigned char>(pos_y,
                                               pos_x * chans + ch)));
-            else if (type == CV_8S)
+            else if (type == CV_8S) {
                 values.append(QString::number(image.at<char>(pos_y, pos_x * chans + ch)));
-            else if (type == CV_16S)
+            } else if (type == CV_16S) {
                 values.append(QString::number(image.at<short>(pos_y, pos_x * chans + ch)));
-            else if (type == CV_16U)
+            } else if (type == CV_16U)
                 values.append(QString::number(image.at<unsigned short>(pos_y,
                                               pos_x * chans + ch)));
-            else if (type == CV_32S)
+            else if (type == CV_32S) {
                 values.append(QString::number(image.at<int>(pos_y, pos_x * chans + ch)));
-            else if (type == CV_32F)
+            } else if (type == CV_32F)
                 values.append(QString::number((double) image.at<float>(pos_y,
                                               pos_x * chans + ch)));
-            else
+            else {
                 values.append(QString::number(image.at<double>(pos_y, pos_x * chans + ch)));
+            }
         }
     }
 
@@ -199,7 +211,7 @@ void MainWindow::receivedImage(QString name, cv::Mat image)
     ReceivedItem &item = insertNewReceivedItem();
     item.type = ReceivedItem::TYPE_IMAGE;
     item.name = name;
-    item.image = image;
+    item.displayableImage = image;
 
     addLabelForCurrentItem();
 
@@ -226,17 +238,19 @@ void MainWindow::receivedKeypoints(QString name,
         int cols = 0, rows = 0;
         for (size_t i = 0; i < points.size(); i++) {
             const cv::KeyPoint &kp = points.at(i);
-            if (kp.pt.x + kp.size > cols)
+            if (kp.pt.x + kp.size > cols) {
                 cols = kp.pt.x + kp.size;
-            if (kp.pt.y + kp.size > rows)
+            }
+            if (kp.pt.y + kp.size > rows) {
                 rows = kp.pt.y + kp.size;
+            }
         }
         originalImage = cv::Mat(rows, cols, CV_8UC3, cv::Scalar::all(255));
     } else {
-        originalImage = received_items[foundId].image;
+        originalImage = received_items[foundId].displayableImage;
     }
 
-    cv::drawKeypoints(originalImage, points, item.image, cv::Scalar::all(-1),
+    cv::drawKeypoints(originalImage, points, item.displayableImage, cv::Scalar::all(-1),
                       cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
     addLabelForCurrentItem();
@@ -279,7 +293,7 @@ int MainWindow::findImageByName(QString name)
  * Creates a new element in the list or deletes old item if more than `max_item_count` items in list.
  * After call, `received_items[item_counter]` represents the current item.
  */
-ReceivedItem& MainWindow::insertNewReceivedItem()
+ReceivedItem &MainWindow::insertNewReceivedItem()
 {
     //if our list of items is full, we rewrite the oldest item in the list
     //- circular rewriting, we release representative labels out of the memory
@@ -306,39 +320,40 @@ ReceivedItem& MainWindow::insertNewReceivedItem()
 void MainWindow::addLabelForCurrentItem()
 {
     //in channels we store original number of channels before scaling
-    cv::Mat &currentImage = received_items[item_counter].image;
-    int channels = currentImage.channels();
+    cv::Mat &currentDisplayableImage = received_items[item_counter].displayableImage;
+    int channels = currentDisplayableImage.channels();
 
     bool displayable = false;
 
     //in matrix_type we store type od data matrix is filled with -char,short, int, etc.
-    const char *matrix_type;
-    int type = currentImage.depth();
+    int type = currentDisplayableImage.depth();
+    const char *matrix_type = mat_types[type];
 
-    matrix_type = mat_types[type];
+
     if (type == CV_8S || type == CV_8U) {
         displayable = true;
     }
 
     //we scale the picture so that if it is not displayable type we scale it to displayable
-    if (!displayable)
-        currentImage = rescale(currentImage);
+    if (!displayable) {
+        currentDisplayableImage = rescale(currentDisplayableImage);
+    }
 
     //now we convert image format to suitable format for displaying our image
     //in actual_image we store the image we are working with
-    if (currentImage.channels() == 3)
-        cv::cvtColor(currentImage,
-                     currentImage, CV_BGR2RGB); //CV_BGR2RGB
+    if (channels == 3)
+        cv::cvtColor(currentDisplayableImage,
+                     currentDisplayableImage, CV_BGR2RGB); //CV_BGR2RGB
     else
-        cv::cvtColor(currentImage,
-                     currentImage, CV_GRAY2RGB); //CV_GRAY2RGB
+        cv::cvtColor(currentDisplayableImage,
+                     currentDisplayableImage, CV_GRAY2RGB); //CV_GRAY2RGB
 
     //converting image to suitable format for qt environment
     QImage qImage = QImage((const unsigned char *)
-                           currentImage.data,
-                           currentImage.cols,
-                           currentImage.rows,
-                           currentImage.step[0],
+                           currentDisplayableImage.data,
+                           currentDisplayableImage.cols,
+                           currentDisplayableImage.rows,
+                           currentDisplayableImage.step[0],
                            QImage::Format_RGB888);
 
     //creates new clickable label where the picture will be dislayed and sets its features
@@ -356,9 +371,9 @@ void MainWindow::addLabelForCurrentItem()
 
     QString desc = received_items[item_counter].name
                    + "\n("
-                   + QString::number(currentImage.cols)
+                   + QString::number(currentDisplayableImage.cols)
                    + "x"
-                   + QString::number(currentImage.rows)
+                   + QString::number(currentDisplayableImage.rows)
                    + "), "
                    + QString::number(channels) + ", " + matrix_type;
     description->setText(desc);
