@@ -1,3 +1,7 @@
+#ifndef _DEBUG
+#define _DEBUG
+#endif
+
 #include "cvdebug.h"
 
 #include <cassert>
@@ -64,7 +68,7 @@ public:
 
     void writeStr(const std::string &str) {
         CV_DbgAssert(this->curr + sizeof(int) + str.length() <= this->size);
-        write(str.length());
+        write((uint) str.length());
         memcpy(p, str.c_str(), str.length());
         p += str.length();
         curr += str.length();

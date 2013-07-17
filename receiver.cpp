@@ -31,7 +31,7 @@ void ReceiverThread::decodeData(const QByteArray &inputData)
 {
     const int *header = (const int *) inputData.constData();
     int type = header[0];
-    int nameLength = header[1];
+    uint nameLength = header[1];
     QString name = QString::fromUtf8((const char *) &header[2], nameLength);
 
     const void *dataHeader = (const void *)((const char *)&header[2] + nameLength);
