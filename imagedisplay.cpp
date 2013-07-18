@@ -30,17 +30,14 @@ void ImageDisplay::zoom(double zoomfactor, int mouse_pos_x, int mouse_pos_y)
 
     if (zoom_of_picture < 1) { zoom_of_picture = 1; }
 
-    //mouse position depends on the displaying label size and size of the area
-    // we want to display, so there scalefactor of pixmap comes together woth offset
-    mouse_pos_x /= scaleFactor_x;
-    mouse_pos_y /= scalefactor_y;
-    mouse_pos_x += offset_x;
-    mouse_pos_y += offset_y;
+    float mouse_ratio_x = (float) mouse_pos_x / width();
+    float mouse_ratio_y = (float) mouse_pos_y / height();
 
-    //we need to maintain an area's to display width and height
-    // first we calculate size of the area to be displayed
-    int range_x = (int)((double) original_pixmap.width() / zoom_of_picture);
-    int range_y = (int)((double) original_pixmap.height() / zoom_of_picture);
+    float global_x = mouse_pos_x / scaleFactor_x + offset_x;
+    float global_y = mouse_pos_y / scalefactor_y + offset_y;
+
+    float range_x = (int)((double) original_pixmap.width() / zoom_of_picture);
+    float range_y = (int)((double) original_pixmap.height() / zoom_of_picture);
 
     if (range_y < 3 || range_x < 3) {
         zoom_of_picture *= (1 / 1.25);   //we need to set the zoom back
@@ -48,11 +45,12 @@ void ImageDisplay::zoom(double zoomfactor, int mouse_pos_x, int mouse_pos_y)
     }
 
     //now we try to fit the edges of the area to original pixmap
-    int top_left_corner_x = mouse_pos_x - range_x / 2;
-    int top_left_corner_y = mouse_pos_y - range_y / 2;
-    int bottom_right_corner_x = mouse_pos_x + range_x / 2;
-    int bottom_right_corner_y = mouse_pos_y + range_y / 2;
+    float top_left_corner_x = global_x - range_x * mouse_ratio_x;
+    float top_left_corner_y = global_y - range_y * mouse_ratio_y;
+    float bottom_right_corner_x = global_x + range_x * (1 - mouse_ratio_x);
+    float bottom_right_corner_y = global_y + range_y * (1 - mouse_ratio_y);
 
+    // this should not happen, but just in case...
     // if the edges are out of the range, we need to set them back
     // so they fit into original pixmap
     if (top_left_corner_y < 0) {
@@ -73,17 +71,15 @@ void ImageDisplay::zoom(double zoomfactor, int mouse_pos_x, int mouse_pos_y)
     }
 
     //we need to set new scalefactor as precize as possible
-    scaleFactor_x = (double) this->parentWidget()->width() / (double)(bottom_right_corner_x -
-                    top_left_corner_x);
-    scalefactor_y = (double) this->parentWidget()->height() / (double)(bottom_right_corner_y -
-                    top_left_corner_y);
+    scaleFactor_x = width()  / (bottom_right_corner_x - top_left_corner_x);
+    scalefactor_y = height() / (bottom_right_corner_y - top_left_corner_y);
 
     //new pixmap offset depends on the top left corner of the rectangle we are going to display
-    offset_x = top_left_corner_x;
-    offset_y = top_left_corner_y;
+    offset_x = (int) top_left_corner_x;
+    offset_y = (int) top_left_corner_y;
 
-    end_x = bottom_right_corner_x;
-    end_y = bottom_right_corner_y;
+    end_x = (int) bottom_right_corner_x;
+    end_y = (int) bottom_right_corner_y;
 
     refreshImage();
 }
