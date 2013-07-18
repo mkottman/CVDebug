@@ -3,10 +3,18 @@
 
 #include <QMainWindow>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/opencv.hpp>
+
+#ifdef CV_BGR2RGB
+namespace cv {
+enum {
+       COLOR_BGR2RGB      = 4,
+       COLOR_RGB2BGR      = COLOR_BGR2RGB,
+       COLOR_GRAY2BGR     = 8,
+       COLOR_GRAY2RGB     = COLOR_GRAY2BGR,
+}
+}
+#endif
 
 #include <QtGui>
 #include <QtCore>

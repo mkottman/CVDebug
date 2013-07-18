@@ -31,7 +31,10 @@ public:
     }
 
     ~CvDebugState() {
-        // leak memory please
+        if (initialized) {
+            delete socket;
+            delete context;
+        }
     }
 
     inline bool send(zmq::message_t &msg, int flags = 0) {
@@ -126,12 +129,13 @@ void cvdebug_keypoints(const std::vector<cv::KeyPoint> &keyPoints,
         return;
     }
 
-    const int nPoints = keyPoints.size();
+    const uint nPoints = keyPoints.size();
 
     const int header_length = 2 * sizeof(int) + imageName.length();
     const int kpheader_length = 1 * sizeof(int);
-    const int data_length = nPoints * 4 * sizeof(
-                                float); // each point is: x, y, size, angle
+
+    // each point is: x, y, size, angle
+    const int data_length = nPoints * 4 * sizeof(float);
 
     const int total_length = header_length + kpheader_length + data_length;
 
@@ -147,7 +151,7 @@ void cvdebug_keypoints(const std::vector<cv::KeyPoint> &keyPoints,
     w.write(nPoints);
 
     float *points = static_cast<float *>(w.currPtr());
-    for (int i = 0; i < nPoints; i++) {
+    for (uint i = 0; i < nPoints; i++) {
         const cv::KeyPoint &kp = keyPoints.at(i);
         *points++ = kp.pt.x;
         *points++ = kp.pt.y;

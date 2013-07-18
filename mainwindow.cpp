@@ -48,14 +48,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     //variable counting number of received pictures
     item_counter = 0;
 
+    QWidget *selectorWidget = new QWidget(this);
 
     //here we create a side panel of pictures
     //we put widgets into a layout so it makes no unexpected problems that while resizing
-    selectorLayout = new QVBoxLayout(this);
+    selectorLayout = new QVBoxLayout(selectorWidget);
     selectorLayout->setAlignment(Qt::AlignTop);
     selectorLayout->setMargin(0);
 
-    QWidget *selectorWidget = new QWidget(this);
     selectorWidget->setLayout(selectorLayout);
     ui->imageDisplay->setVisible(false);
 
@@ -83,8 +83,8 @@ void MainWindow::resizeEvent(QResizeEvent *)
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
-    this->receiverThread->stop = true;
-    this->receiverThread->terminate();
+    this->receiverThread->stop();
+    this->receiverThread->wait();
 }
 
 void MainWindow::displayCurrentImage()
@@ -343,10 +343,10 @@ void MainWindow::addLabelForCurrentItem()
     //in actual_image we store the image we are working with
     if (channels == 3)
         cv::cvtColor(currentDisplayableImage,
-                     currentDisplayableImage, CV_BGR2RGB); //CV_BGR2RGB
+                     currentDisplayableImage, cv::COLOR_BGR2RGB); //CV_BGR2RGB
     else
         cv::cvtColor(currentDisplayableImage,
-                     currentDisplayableImage, CV_GRAY2RGB); //CV_GRAY2RGB
+                     currentDisplayableImage, cv::COLOR_GRAY2RGB); //CV_GRAY2RGB
 
     //converting image to suitable format for qt environment
     QImage qImage = QImage((const unsigned char *)

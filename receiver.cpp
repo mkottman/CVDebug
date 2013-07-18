@@ -11,19 +11,27 @@ void ReceiverThread::run()
 {
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_SUB);
-    socket.bind("tcp://*:7139");
-    socket.setsockopt(ZMQ_SUBSCRIBE, NULL, 0);
-    stop = false;
 
-    while (!stop) {
+    socket.bind("tcp://*:7139");
+    // subscribe to all messages
+    socket.setsockopt(ZMQ_SUBSCRIBE, NULL, 0);
+
+    stopped = false;
+
+    while (!stopped) {
         zmq::message_t request;
 
         // Wait for next request from client
-        socket.recv(&request);
+        int ret = socket.recv(&request, ZMQ_DONTWAIT);
 
-        // Decode the request
-        QByteArray data((const char *) request.data(), request.size());
-        decodeData(data);
+        if (ret > 0) {
+            // Decode the request
+            QByteArray data((const char *) request.data(), request.size());
+            decodeData(data);
+        } else {
+            msleep(1);
+            yieldCurrentThread();
+        }
     }
 }
 
@@ -38,25 +46,25 @@ void ReceiverThread::decodeData(const QByteArray &inputData)
 
     if (type == CVDEBUG_IMAGE) {
         const int *imgHeader = (const int *) dataHeader;
-        int sirka = imgHeader[0];
-        int vyska = imgHeader[1];
+        int width = imgHeader[0];
+        int height = imgHeader[1];
         int flags = imgHeader[2];
 
         const void *data = &imgHeader[3];
 
-        cv::Mat image(vyska, sirka, flags, (void *) data);
+        cv::Mat image(height, width, flags, (void *) data);
         cv::Mat result = image.clone();
 
         emit receivedImage(name, result);
     } else if (type == CVDEBUG_KEYPOINTS) {
-        const int *kpHeader = (const int *) dataHeader;
+        const uint *kpHeader = (const uint *) dataHeader;
         const float *kpData = (const float *) &kpHeader[1];
 
-        int nPoints = kpHeader[0];
+        uint nPoints = kpHeader[0];
         std::vector<cv::KeyPoint> result(nPoints);
 
-        for (int i = 0; i < nPoints; i++) {
-            cv::KeyPoint &kp = result.at(i);
+        for (uint i = 0; i < nPoints; i++) {
+            cv::KeyPoint &kp = result[i];
             kp.pt.x = *kpData++;
             kp.pt.y = *kpData++;
             kp.size = *kpData++;

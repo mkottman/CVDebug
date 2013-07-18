@@ -11,19 +11,21 @@
 
 class ReceiverThread : public QThread{
     Q_OBJECT
+    bool stopped;
 
 public:
     explicit ReceiverThread(QObject *parent = 0);
     void run();
     void decodeData(const QByteArray &inputData);
-    bool stop;
 
 signals:
     void receivedImage(const QString name, const cv::Mat& image);
     void receivedKeypoints(const QString imageName, const std::vector<cv::KeyPoint>& points);
 
 public slots:
-
+    void stop() {
+        stopped = true;
+    }
 };
 
 #endif // MYTHREAD_H
