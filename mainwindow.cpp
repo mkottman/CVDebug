@@ -109,8 +109,12 @@ void MainWindow::displayCurrentImage()
     if (newPixmap.size() == ui->imageDisplay->original_pixmap.size()) {
         // image of the same size, do not reset zoom settings
     } else {
-        ui->imageDisplay->scalefactor_y = ui->imageDisplay->scaleFactor_x =
-                                              (double) ui->imageDisplay->pixmap()->height() / (double) qImage.height();
+        double scale = (double) ui->imageDisplay->pixmap()->height() / (double) qImage.height();
+        if (scale < 1)
+            scale = 1;
+
+        ui->imageDisplay->scaleFactor_y = ui->imageDisplay->scaleFactor_x = scale;
+
         ui->imageDisplay->zoom_of_picture = 1;
         ui->imageDisplay->offset_x = 0;
         ui->imageDisplay->offset_y = 0;
@@ -147,15 +151,13 @@ void MainWindow::reload_picture()
     }
 }
 
-void MainWindow::mouseMoved(int pos_x, int pos_y)
+void MainWindow::mouseMoved(int x, int y)
 {
     QMutexLocker lock(&mutex);
 
-    //counting accurate possition of mouse cursor on displayed image
-    pos_x = (int)((pos_x / ui->imageDisplay->scaleFactor_x) +
-                  ui->imageDisplay->offset_x);
-    pos_y = (int)((pos_y / ui->imageDisplay->scalefactor_y) +
-                  ui->imageDisplay->offset_y);
+    QPoint realPosition = ui->imageDisplay->toImagePosition(x, y);
+    int pos_x = realPosition.x();
+    int pos_y = realPosition.y();
 
     cv::Mat &image = received_items[current_ID].displayableImage;
 

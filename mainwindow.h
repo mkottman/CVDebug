@@ -64,7 +64,7 @@ private:
 
 private slots:
     void reload_picture();
-    void mouseMoved(int pos_x, int pos_y);
+    void mouseMoved(int x, int y);
 
     void receivedImage(QString name, cv::Mat image);
     void receivedKeypoints(QString name, std::vector<cv::KeyPoint> points);
