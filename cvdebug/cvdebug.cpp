@@ -12,6 +12,12 @@
 #include <zmq.hpp>
 #include <iostream>
 
+enum CVDEBUG_TYPE {
+    CVDEBUG_IMAGE,
+    CVDEBUG_KEYPOINTS,
+    CVDEBUG_LAST
+};
+
 class CvDebugState
 {
 public:

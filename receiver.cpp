@@ -2,6 +2,12 @@
 
 #include "cvdebug/cvdebug.h"
 
+enum CVDEBUG_TYPE {
+    CVDEBUG_IMAGE,
+    CVDEBUG_KEYPOINTS,
+    CVDEBUG_LAST
+};
+
 using namespace std;
 
 ReceiverThread::ReceiverThread(QObject *parent) : QThread(parent)

@@ -1,12 +1,6 @@
 #ifndef CVDEBUG_H
 #define CVDEBUG_H
 
-enum CVDEBUG_TYPE {
-    CVDEBUG_IMAGE,
-    CVDEBUG_KEYPOINTS,
-    CVDEBUG_LAST
-};
-
 #ifndef NDEBUG
 
 // simplified from Qt
