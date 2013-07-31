@@ -83,8 +83,7 @@ QPoint ImageDisplay::toImagePosition(int x, int y)
     y = (int)((y / scaleFactor_y) + offset_y);
 
     if (x<0 || y<0) {
-        int xxxx = 1;
-        xxxx = 2;
+        x = y = 0;
     }
 
     return QPoint(x, y);

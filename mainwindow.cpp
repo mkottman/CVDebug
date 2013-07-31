@@ -159,7 +159,7 @@ void MainWindow::mouseMoved(int x, int y)
     int pos_x = realPosition.x();
     int pos_y = realPosition.y();
 
-    cv::Mat &image = received_items[current_ID].displayableImage;
+    cv::Mat &image = received_items[current_ID].originalImage;
 
     QString values;
 
@@ -213,6 +213,7 @@ void MainWindow::receivedImage(QString name, cv::Mat image)
     ReceivedItem &item = insertNewReceivedItem();
     item.type = ReceivedItem::TYPE_IMAGE;
     item.name = name;
+    item.originalImage = image;
     item.displayableImage = image;
 
     addLabelForCurrentItem();
